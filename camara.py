@@ -1,5 +1,8 @@
 import cv2
 import numpy as np
+#import test
+
+corrigiendo = False
 cap = cv2.VideoCapture(-1)
 
 while (True):
@@ -24,11 +27,16 @@ while (True):
     x = int(M["m10"]/M["m00"])
     y = int(M["m01"]/M["m00"])
     
-    
-    
-    
-    
-    
+    #go to goal
+    if (!corrigiendo && -0.35 < y && y < 0.35):
+        adelante(123)
+    else:
+        corrigiendo = True
+        if (y < 0):
+            derecha(307)
+        else:
+            izquierda(307)
+        corrigiendo = False
     
     cv2.circle(frame, (x,y), 7, (255,0,0), -1)
     cv2.imshow('prueba2', result)
