@@ -1,6 +1,42 @@
 import cv2
 import numpy as np
-#import test
+from Ax12 import Ax12
+
+# e.g 'COM3' windows or '/dev/ttyUSB0' for Linux
+Ax12.DEVICENAME = '/dev/ttyUSB0'
+
+Ax12.BAUDRATE = 1_000_000
+
+# sets baudrate and opens com port
+Ax12.connect()
+
+# create AX12 instance with ID 10 
+motor_id_der = 1
+my_dxl_der = Ax12(motor_id_der)
+
+motor_id_izq = 2
+my_dxl_izq = Ax12(motor_id_izq)  
+
+def izquierda(vel):
+    my_dxl_der.set_moving_speed(1023+vel)
+    my_dxl_izq.set_moving_speed(1023+vel)
+
+def derecha(vel):
+    my_dxl_der.set_moving_speed(vel)
+    my_dxl_izq.set_moving_speed(vel)
+    
+def adelante(vel):
+    my_dxl_der.set_moving_speed(1023+vel)
+    my_dxl_izq.set_moving_speed(vel)
+    
+def atras(vel):
+    my_dxl_der.set_moving_speed(vel)
+    my_dxl_izq.set_moving_speed(1023+vel)
+
+def parar():
+    my_dxl_der.set_moving_speed(0)
+    my_dxl_izq.set_moving_speed(0)
+
 
 corrigiendo = False
 cap = cv2.VideoCapture(-1)
@@ -28,7 +64,7 @@ while (True):
     y = int(M["m01"]/M["m00"])
     
     #go to goal
-    if (!corrigiendo && -0.35 < y && y < 0.35):
+    if (not(corrigiendo) and -0.35 < y and y < 0.35):
         adelante(123)
     else:
         corrigiendo = True

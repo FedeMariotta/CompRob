@@ -1,7 +1,7 @@
 from Ax12 import Ax12
 
 # e.g 'COM3' windows or '/dev/ttyUSB0' for Linux
-Ax12.DEVICENAME = '/dev/ttyUSB1'
+Ax12.DEVICENAME = '/dev/ttyUSB0'
 
 Ax12.BAUDRATE = 1_000_000
 
@@ -9,32 +9,13 @@ Ax12.BAUDRATE = 1_000_000
 Ax12.connect()
 
 # create AX12 instance with ID 10 
-motor_id_der = 1
-my_dxl_der = Ax12(motor_id_der)
+motor_id = 1 #derecho
+my_dxl = Ax12(motor_id)  
+my_dxl.set_moving_speed(0)
 
-motor_id_izq = 2
-my_dxl_izq = Ax12(motor_id_izq)  
-
-def izquierda(vel):
-    my_dxl_der.set_moving_speed(1023+vel)
-    my_dxl_izq.set_moving_speed(1023+vel)
-
-def derecha(vel):
-    my_dxl_der.set_moving_speed(vel)
-    my_dxl_izq.set_moving_speed(vel)
-def adelante(vel):
-    my_dxl_der.set_moving_speed(1023+vel)
-    my_dxl_izq.set_moving_speed(vel)
-    
-def atras(vel):
-    my_dxl_der.set_moving_speed(vel)
-    my_dxl_izq.set_moving_speed(1023+vel)
-
-def parar():
-    my_dxl_der.set_moving_speed(0)
-    my_dxl_izq.set_moving_speed(0)
-
-
+motor_id = 2 #izquierdo
+my_dxl = Ax12(motor_id)  
+my_dxl.set_moving_speed(0)
 
 
 
