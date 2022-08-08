@@ -23,6 +23,13 @@ while (True):
     if (M["m00"]==0): M["m00"]=1
     x = int(M["m10"]/M["m00"])
     y = int(M["m01"]/M["m00"])
+    
+    
+    
+    
+    
+    
+    
     cv2.circle(frame, (x,y), 7, (255,0,0), -1)
     cv2.imshow('prueba2', result)
     cv2.imshow('prueba', frame)
