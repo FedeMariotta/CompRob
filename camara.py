@@ -49,8 +49,8 @@ while (True):
     lower_red = np.array([160,100,20])
     upper_red = np.array([179,255,255])
     
-    lower_green = np.array([40,40,40])
-    upper_green = np.array([70,255,255])
+    lower_green = np.array([40,80,20])
+    upper_green = np.array([80,255,255])
     
     lower_blue = np.array([100,80,2])
     upper_blue = np.array([126,255,255])
@@ -146,9 +146,9 @@ while (True):
         corrigiendo = False
     
     cv2.circle(frame, (x_yellow,y_yellow), 7, (0,255,255), -1)
-    #cv2.circle(frame, (x_red,y_red), 7, (0,0,255), -1)
-    #cv2.circle(frame, (x_green,y_green), 7, (0,255,0), -1)
-    #cv2.circle(frame, (x_blue,y_blue), 7, (255,0,0), -1)
+    cv2.circle(frame, (x_red,y_red), 7, (0,0,255), -1)
+    cv2.circle(frame, (x_green,y_green), 7, (0,255,0), -1)
+    cv2.circle(frame, (x_blue,y_blue), 7, (255,0,0), -1)
     
     cv2.imshow('amarillo', result_yellow)
     cv2.imshow('azul', result_blue)    
