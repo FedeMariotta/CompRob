@@ -100,7 +100,7 @@ while (True):
     
     contours_yellow,_ = cv2.findContours(mask_yellow, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     
-    if (len(contours_red) = 0):
+    if (len(contours_red) == 0):
         x_red = 0
         y_red = 0
     else:
@@ -110,7 +110,7 @@ while (True):
         x_red = int(M_red["m10"]/M_red["m00"])
         y_red = int(M_red["m01"]/M_red["m00"])
         
-    if(len(contours_green) = 0):
+    if(len(contours_green) == 0):
         x_green = 0
         y_green = 0
     else:
@@ -119,7 +119,7 @@ while (True):
         if (M_green["m00"]==0): M_green["m00"]=1
         x_green = int(M_green["m10"]/M_green["m00"])
         y_green = int(M_green["m01"]/M_green["m00"])
-    if (len(contours_blue) = 0):
+    if (len(contours_blue) == 0):
         x_blue = 0
         y_blue = 0
     else:    
@@ -128,7 +128,7 @@ while (True):
         if (M_blue["m00"]==0): M_blue["m00"]=1
         x_blue = int(M_blue["m10"]/M_blue["m00"])
         y_blue = int(M_blue["m01"]/M_blue["m00"])
-    if (len(contours_yellow) = 0):
+    if (len(contours_yellow) == 0):
         x_yellow = 0
         y_yellow = 0
     else:    
@@ -161,8 +161,8 @@ while (True):
                 y = y_blue
                 x = x_blue
             else:
-                y = y_rojo
-                x = x_rojo
+                y = y_red
+                x = x_red
         else:
             if (y_red > y_green):
                 y = y_red
@@ -172,15 +172,30 @@ while (True):
                 x = x_green    
     
     #go to goal
-    if (not(corrigiendo) and 275 < x and x < 425):
-        adelante(123)
-    else:
-        corrigiendo = True
-        if (x < 350):
-            izquierda(123)
+    if (y > 380):
+        if (325 < x and x < 375):
+            a=5
         else:
-            derecha(123)
-        corrigiendo = False
+            if (x < 350):
+                izquierda(100)
+            else:
+                derecha(100)
+        
+        
+        parar()
+    else:
+        if (not(corrigiendo) and 275 < x and x < 425):
+            adelante(123)
+        else:
+            corrigiendo = True
+            if (x < 350):
+                izquierda(123)
+            else:
+                derecha(123)
+            corrigiendo = False
+        
+    print("CORDENADA Y:")
+    print(y)
     
     cv2.circle(frame, (x_yellow,y_yellow), 7, (0,255,255), -1)
     cv2.circle(frame, (x_red,y_red), 7, (0,0,255), -1)
