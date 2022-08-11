@@ -100,6 +100,8 @@ while (True):
     
     contours_yellow,_ = cv2.findContours(mask_yellow, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     
+    
+    
     big_contour_red = max(contours_red, key=cv2.contourArea)
     
     big_contour_green = max(contours_green, key=cv2.contourArea)
@@ -134,12 +136,46 @@ while (True):
     x_yellow = int(M_yellow["m10"]/M_yellow["m00"])
     y_yellow = int(M_yellow["m01"]/M_yellow["m00"])
     
+    
+    #me quedo con el y mas grande
+    
+    if (y_yellow > y_ blue):
+        if (y_yellow > y_green):
+            if (y_yellow > y_red):
+                y = y_yellow
+                x = x_yellow
+            else:
+                y = y_red
+                x = x_red
+        else:
+            if (y_red > y_green):
+                y = y_red
+                x = x_red
+            else:
+                y = y_green
+                x = x_green
+    else:
+        if (y_blue > y_green):
+            if (y_blue > y_red):
+                y = y_blue
+                x = x_blue
+            else:
+                y = y_rojo
+                x = x_rojo
+        else:
+            if (y_red > y_green):
+                y = y_red
+                x = x_red
+            else:
+                y = y_green
+                x = x_green    
+    
     #go to goal
-    if (not(corrigiendo) and 275 < x_red and x_red < 425):
+    if (not(corrigiendo) and 275 < x and x < 425):
         adelante(123)
     else:
         corrigiendo = True
-        if (x_red < 350):
+        if (x < 350):
             izquierda(123)
         else:
             derecha(123)
