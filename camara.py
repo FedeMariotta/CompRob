@@ -100,46 +100,47 @@ while (True):
     
     contours_yellow,_ = cv2.findContours(mask_yellow, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     
-    
-    
-    big_contour_red = max(contours_red, key=cv2.contourArea)
-    
-    big_contour_green = max(contours_green, key=cv2.contourArea)
-    
-    big_contour_blue = max(contours_blue, key=cv2.contourArea)
-    
-    big_contour_yellow = max(contours_yellow, key=cv2.contourArea)
-    
-    M_red = cv2.moments(big_contour_red)
- 
-    M_green = cv2.moments(big_contour_green) 
- 
-    M_blue = cv2.moments(big_contour_blue) 
- 
-    M_yellow = cv2.moments(big_contour_yellow) 
- 
-    if (M_red["m00"]==0): M_red["m00"]=1
-    x_red = int(M_red["m10"]/M_red["m00"])
-    y_red = int(M_red["m01"]/M_red["m00"])
-    
-    
-    if (M_green["m00"]==0): M_green["m00"]=1
-    x_green = int(M_green["m10"]/M_green["m00"])
-    y_green = int(M_green["m01"]/M_green["m00"])
-    
-    if (M_blue["m00"]==0): M_blue["m00"]=1
-    x_blue = int(M_blue["m10"]/M_blue["m00"])
-    y_blue = int(M_blue["m01"]/M_blue["m00"])
-    
-    
-    if (M_yellow["m00"]==0): M_yellow["m00"]=1
-    x_yellow = int(M_yellow["m10"]/M_yellow["m00"])
-    y_yellow = int(M_yellow["m01"]/M_yellow["m00"])
-    
-    
+    if (len(contours_red) = 0):
+        x_red = 0
+        y_red = 0
+    else:
+        big_contour_red = max(contours_red, key=cv2.contourArea)    
+        M_red = cv2.moments(big_contour_red)
+        if (M_red["m00"]==0): M_red["m00"]=1
+        x_red = int(M_red["m10"]/M_red["m00"])
+        y_red = int(M_red["m01"]/M_red["m00"])
+        
+    if(len(contours_green) = 0):
+        x_green = 0
+        y_green = 0
+    else:
+        big_contour_green = max(contours_green, key=cv2.contourArea)    
+        M_green = cv2.moments(big_contour_green)
+        if (M_green["m00"]==0): M_green["m00"]=1
+        x_green = int(M_green["m10"]/M_green["m00"])
+        y_green = int(M_green["m01"]/M_green["m00"])
+    if (len(contours_blue) = 0):
+        x_blue = 0
+        y_blue = 0
+    else:    
+        big_contour_blue = max(contours_blue, key=cv2.contourArea)    
+        M_blue = cv2.moments(big_contour_blue)
+        if (M_blue["m00"]==0): M_blue["m00"]=1
+        x_blue = int(M_blue["m10"]/M_blue["m00"])
+        y_blue = int(M_blue["m01"]/M_blue["m00"])
+    if (len(contours_yellow) = 0):
+        x_yellow = 0
+        y_yellow = 0
+    else:    
+        big_contour_yellow = max(contours_yellow, key=cv2.contourArea)
+        M_yellow = cv2.moments(big_contour_yellow)    
+        if (M_yellow["m00"]==0): M_yellow["m00"]=1
+        x_yellow = int(M_yellow["m10"]/M_yellow["m00"])
+        y_yellow = int(M_yellow["m01"]/M_yellow["m00"])
+     
     #me quedo con el y mas grande
     
-    if (y_yellow > y_ blue):
+    if (y_yellow > y_blue):
         if (y_yellow > y_green):
             if (y_yellow > y_red):
                 y = y_yellow
