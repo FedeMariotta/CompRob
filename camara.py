@@ -4,7 +4,7 @@ from Ax12 import Ax12
 from rplidar import RPLidar
 
 # e.g 'COM3' windows or '/dev/ttyUSB0' for Linux
-PORT_NAME = '/dev/ttyUSB0' #lidar
+#PORT_NAME = '/dev/ttyUSB0' #lidar
 
 Ax12.DEVICENAME = '/dev/ttyUSB1' #motores
 
@@ -13,7 +13,8 @@ Ax12.BAUDRATE = 1_000_000
 # sets baudrate and opens com port
 Ax12.connect()
 
-
+PORT_NAME = '/dev/ttyUSB0'
+lidar = RPLidar(PORT_NAME)
 
 # create AX12 instance with ID 10 
 motor_id_der = 1
@@ -23,26 +24,32 @@ motor_id_izq = 2
 my_dxl_izq = Ax12(motor_id_izq)  
 
 def laser():
-    lidar = RPLidar(PORT_NAME)
-    angulo = 0
     i = 0
+    angulo = 0
     distmin = 200000
     angmin = 0
-    try:
-        print('Recording measurments... Press Crl+C to stop.')
-        for measurment in lidar.iter_measurments():
-            if (i == 0):
-                angulo = measurment[2]
-                i = 1
-            if (measurment[2] >= angulo-1 and i != 0 and measurment[2] < angulo):
-                break
-            if (measurment[3] < distmin and measurment[3] > 0):
-                distmin = measurment[3]
-                angmin = measurment[2] 
-    except KeyboardInterrupt:
-        print('Stoping.')
+    #print('Recording measurments... Press Crl+C to stop.')
+    #iterador = lidar.iter_measurments()
+    a = lidar.get_info()
+    #lidar.clear_input()
+    
+    #lidar.disconnect()
+    #lidar = RPLidar(PORT_NAME) 
+    for measurment in lidar.iter_measurments():
+        #print("a")
+        if (i == 0):
+            angulo = measurment[2]
+            i = 1
+        if (measurment[2] >= angulo-1 and i != 0 and measurment[2] < angulo):
+            #print("Termino una rondaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+            #lidar.stop()
+            break
+        if (measurment[3] < distmin and measurment[3] > 0):
+            distmin = measurment[3]
+            angmin  = measurment[2] 
+        #print(distmin) 
+        #print(angmin)
     lidar.stop()
-    lidar.disconnect()
     return (distmin, angmin)
     
 def izquierda(vel):
@@ -72,12 +79,12 @@ cap = cv2.VideoCapture(-1)
 while (True):
      #enderezarnos
     l = laser()
-    while not(l[1] > 175 and l[1] < 185):
+    while not(l[1] > 165 and l[1] < 195):
         print(l[1])
         if (l[1] < 180):
-            derecha(123)
-        else:
             izquierda(123)
+        else:
+            derecha(123)
         l = laser()
     parar()   
 
