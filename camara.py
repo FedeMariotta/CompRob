@@ -1,14 +1,19 @@
 import cv2
 import numpy as np
 from Ax12 import Ax12
+from rplidar import RPLidar
 
 # e.g 'COM3' windows or '/dev/ttyUSB0' for Linux
-Ax12.DEVICENAME = '/dev/ttyUSB0'
+PORT_NAME = '/dev/ttyUSB0' #lidar
+
+Ax12.DEVICENAME = '/dev/ttyUSB1' #motores
 
 Ax12.BAUDRATE = 1_000_000
 
 # sets baudrate and opens com port
 Ax12.connect()
+
+
 
 # create AX12 instance with ID 10 
 motor_id_der = 1
@@ -17,6 +22,29 @@ my_dxl_der = Ax12(motor_id_der)
 motor_id_izq = 2
 my_dxl_izq = Ax12(motor_id_izq)  
 
+def laser():
+    lidar = RPLidar(PORT_NAME)
+    angulo = 0
+    i = 0
+    distmin = 200000
+    angmin = 0
+    try:
+        print('Recording measurments... Press Crl+C to stop.')
+        for measurment in lidar.iter_measurments():
+            if (i == 0):
+                angulo = measurment[2]
+                i = 1
+            if (measurment[2] >= angulo-1 and i != 0 and measurment[2] < angulo):
+                break
+            if (measurment[3] < distmin and measurment[3] > 0):
+                distmin = measurment[3]
+                angmin = measurment[2] 
+    except KeyboardInterrupt:
+        print('Stoping.')
+    lidar.stop()
+    lidar.disconnect()
+    return (distmin, angmin)
+    
 def izquierda(vel):
     my_dxl_der.set_moving_speed(1023+vel)
     my_dxl_izq.set_moving_speed(1023+vel)
@@ -42,6 +70,18 @@ corrigiendo = False
 cap = cv2.VideoCapture(-1)
 
 while (True):
+     #enderezarnos
+    l = laser()
+    while not(l[1] > 175 and l[1] < 185):
+        print(l[1])
+        if (l[1] < 180):
+            derecha(123)
+        else:
+            izquierda(123)
+        l = laser()
+    parar()   
+
+    '''
     ret, frame = cap.read()
 
     image =cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
@@ -194,8 +234,7 @@ while (True):
                 derecha(123)
             corrigiendo = False
         
-    print("CORDENADA Y:")
-    print(y)
+    print("Recogi el cubo)
     
     cv2.circle(frame, (x_yellow,y_yellow), 7, (0,255,255), -1)
     cv2.circle(frame, (x_red,y_red), 7, (0,0,255), -1)
@@ -207,6 +246,10 @@ while (True):
     cv2.imshow('verde', result_green)
     cv2.imshow('rojo', result_red)
     cv2.imshow('prueba', frame)
+    '''   
+    
+   
+    
     
     #cv2.imshow('mask', lower_mask)
     #cv2.imshow('result', result)
