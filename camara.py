@@ -6,19 +6,22 @@ from rplidar import RPLidar
 # e.g 'COM3' windows or '/dev/ttyUSB0' for Linux
 #PORT_NAME = '/dev/ttyUSB0' #lidar
 
-Ax12.DEVICENAME = '/dev/ttyUSB1' #motores
+Ax12.DEVICENAME = '/dev/ttyUSB0' #motores
 
 Ax12.BAUDRATE = 1_000_000
 
 # sets baudrate and opens com port
 Ax12.connect()
 
-PORT_NAME = '/dev/ttyUSB0'
+PORT_NAME = '/dev/ttyUSB1'
 lidar = RPLidar(PORT_NAME)
 
 # create AX12 instance with ID 10 
 motor_id_der = 1
 my_dxl_der = Ax12(motor_id_der)
+
+parada = [380, 380]
+i = 0
 
 motor_id_izq = 2
 my_dxl_izq = Ax12(motor_id_izq)  
@@ -76,6 +79,7 @@ def parar():
 corrigiendo = False
 yendo_buscar_cubo = True
 cap = cv2.VideoCapture(-1)
+cap.set(10,15)
 
 while (True):
     if (yendo_buscar_cubo):
@@ -86,14 +90,14 @@ while (True):
         lower_red = np.array([160,100,20])
         upper_red = np.array([179,255,255])
         
-        lower_green = np.array([40,80,20])
-        upper_green = np.array([80,255,255])
+        lower_green = np.array([35,80,20])
+        upper_green = np.array([85,255,255])
         
         lower_blue = np.array([100,80,2])
         upper_blue = np.array([126,255,255])
         
-        lower_yellow = np.array([22,70,0])
-        upper_yellow = np.array([50,255,255])
+        lower_yellow = np.array([17,50,0])
+        upper_yellow = np.array([55,255,255])
         
         lower_mask_red = cv2.inRange(image,lower_red,upper_red)
         
@@ -208,26 +212,30 @@ while (True):
                     y = y_green
                     x = x_green    
         
-        #go to goal
-        if (y > 380):
-            if not(325 < x and x < 375):
-                if (x < 350):
-                    izquierda(100)
-                else:
-                    derecha(100)
-            parar()
-            print("Recogi el cubo)
-            yendo_buscar_cubo = False
+        if (y_red == 0 and y_yellow == 0 and y_green == 0 and y_blue == 0):
+            adelante(123)
         else:
-            if (not(corrigiendo) and 275 < x and x < 425):
-                adelante(123)
+        
+            #go to goal
+            if (y > parada[i]):
+                if not(325 < x and x < 375):
+                    if (x < 350):
+                        izquierda(100)
+                    else:
+                        derecha(100)
+                parar()
+                print("Recogi el cubo")
+                yendo_buscar_cubo = False
             else:
-                corrigiendo = True
-                if (x < 350):
-                    izquierda(123)
+                if (not(corrigiendo) and 275 < x and x < 425):
+                    adelante(123)
                 else:
-                    derecha(123)
-                corrigiendo = False
+                    corrigiendo = True
+                    if (x < 350):
+                        izquierda(123)
+                    else:
+                        derecha(123)
+                    corrigiendo = False
             
         
         
@@ -242,17 +250,21 @@ while (True):
             else:
                 derecha(123)
             l = laser()
-        parar() 
-    
+        parar()
+        yendo_buscar_cubo = True
+        i = (i+1) % 2
+        
+         
+
     cv2.circle(frame, (x_yellow,y_yellow), 7, (0,255,255), -1)
     cv2.circle(frame, (x_red,y_red), 7, (0,0,255), -1)
     cv2.circle(frame, (x_green,y_green), 7, (0,255,0), -1)
     cv2.circle(frame, (x_blue,y_blue), 7, (255,0,0), -1)
     
-    cv2.imshow('amarillo', result_yellow)
-    cv2.imshow('azul', result_blue)    
-    cv2.imshow('verde', result_green)
-    cv2.imshow('rojo', result_red)
+    #cv2.imshow('amarillo', result_yellow)
+    #cv2.imshow('azul', result_blue)    
+    #cv2.imshow('verde', result_green)
+    #cv2.imshow('rojo', result_red)
     cv2.imshow('prueba', frame) 
     
    
