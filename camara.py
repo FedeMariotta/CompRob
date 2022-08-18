@@ -38,22 +38,28 @@ def laser():
     distmin = 200000
     angmin = 0
     #iterador = lidar.iter_measurments()
-    a = lidar.get_info()
-    #lidar.clear_input()
-    
-    #lidar.disconnect()
-    #lidar = RPLidar(PORT_NAME) 
-    for measurment in lidar.iter_measurments():
-        if (i == 0):
-            angulo = measurment[2]
-            i = 1
-        if (measurment[2] >= angulo-1 and i != 0 and measurment[2] < angulo):
-            #lidar.stop()
-            break
-        if (measurment[3] < distmin and measurment[3] > 0):
-            distmin = measurment[3]
-            angmin  = measurment[2] 
-    lidar.stop()
+    try:
+        a = lidar.get_info()
+        #lidar.clear_input()
+        
+        #lidar.disconnect()
+        #lidar = RPLidar(PORT_NAME) 
+        for measurment in lidar.iter_measurments():
+            if (i == 0):
+                angulo = measurment[2]
+                i = 1
+            if (measurment[2] >= angulo-1 and i != 0 and measurment[2] < angulo):
+                #lidar.stop()
+                break
+            if (measurment[3] < distmin and measurment[3] > 0):
+                distmin = measurment[3]
+                angmin  = measurment[2] 
+        lidar.stop()
+    except:
+        print("Error")
+        #lidar.disconnect()
+        #lidar = RPLidar(PORT_NAME)
+        #estanterias_atras()
     return (distmin, angmin)
 
 def laseratras():
@@ -142,6 +148,8 @@ def buscar_color(h_min, s_min, v_min, h_max, frame):
         
 def go_to_goal(x, y, est):
     corrigiendo = False
+    print("Y: ")
+    print(y)
     if (y > parada[i]):
         if not(325 < x and x < 375):
             if (x < 350):
@@ -166,26 +174,23 @@ def go_to_goal(x, y, est):
 def estanterias_atras():
     global estado
     l = laser()
-    try:
-        while not(l[1] > 165 and l[1] < 195):
-            if (l[1] < 180):
-                izquierda(123)
-            else:
-                derecha(123)
-            l = laser()
-        if (estado != 3):
-            while not(l[0] > 1800 and l[0] < 1900):
-                print(l[0])
-                adelante(170)
-                l = laseratras()   
-                estado = 2
-                global i
-                i = (i+1) % 2
-        parar()
-    except:
-        l.disconnect()
-        lidar = RPLidar(PORT_NAME)
-        estanterias_atras()
+    
+    while not(l[1] > 165 and l[1] < 195):
+        if (l[1] < 180):
+            izquierda(123)
+        else:
+            derecha(123)
+        l = laser()
+    if (estado != 3):
+        while not(l[0] > 1800 and l[0] < 1900):
+           # f(l[0])
+            adelante(170)
+            l = laseratras()   
+            estado = 2
+            global i
+            i = (i+1) % 2
+    parar()
+
     
 def estanterias_adelante():
     global estado
@@ -233,8 +238,8 @@ while (True):
                 x_green = 0
                 y_green = 0
         
-        print(x_green, y_green, "verde")
-        print(x_yellow, y_yellow, "amarillo")  
+        #print(x_green, y_green, "verde")
+        #print(x_yellow, y_yellow, "amarillo")  
          
         #me quedo con el y mas grande
         
@@ -290,19 +295,19 @@ while (True):
         else:
             #go to goal
             go_to_goal(x, y, 1)   
-            print(color)   
-            print("Agarre el cubo")
+           # print(color)   
+            #print("Agarre el cubo")
     
     elif (estado == 1):
         #enderezarnos
         estanterias_atras()
-        print("estanterias atras")
+        #print("estanterias atras")
         
     elif (estado == 2): #dejamos el cubo en el color correcto
         t_color = devolver_tupla(color)
         x, y, a = buscar_color(t_color[0], t_color[1], t_color[2], t_color[3], frame)
         if (x == 0 and y == 0):
-            avanzar(100)
+            adelante(100)
         #que pasa si no hay color?
         go_to_goal(x, y, 3)
     
@@ -319,7 +324,7 @@ while (True):
     #cv2.imshow('rojo', result_red)
     
    
-    cv2.imshow('camara', frame)
+    #cv2.imshow('camara', frame)
     
     #cv2.imshow('mask', lower_mask)
     #cv2.imshow('result', result)
