@@ -223,9 +223,7 @@ cap = cv2.VideoCapture(-1)
 while (True):
     cap.set(10,15)
     ret, frame = cap.read()
-    cv2.imshow('camara', frame)
-    #image =cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-    '''
+    image =cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
     if (estado == 0):
         #ret, frame = cap.read()
     
@@ -238,18 +236,13 @@ while (True):
         az = devolver_tupla("azul")
         x_blue, y_blue, a = buscar_color (az[0], az[1], az[2], az[3], frame)
         am = devolver_tupla("amarillo")
-        x_yellow, y_yellow, aa = buscar_color(am[0], am[1], am[2], am[3], frame)
-        cv2.circle(frame, (x_yellow,y_yellow), 7, (0,255,255), -1)
-        cv2.circle(frame, (x_red,y_red), 7, (0,0,255), -1)
-        cv2.circle(frame, (x_green,y_green), 7, (0,255,0), -1)
-        cv2.circle(frame, (x_blue,y_blue), 7, (255,0,0), -1)  
-        cv2.imshow('camara', frame)
+        x_yellow, y_yellow, aa = buscar_color(am[0], am[1], am[2], am[3], frame)  
         
         #print("Area amarilla")
         #print(aa)
         #print("Area verde")
         #print(av)
-
+        ''' 
         if (math.sqrt(pow(x_yellow - x_green, 2)+pow(x_yellow - x_green, 2))) < 250:
             if (aa < av):
                 x_yellow = 0
@@ -301,6 +294,12 @@ while (True):
                     y = y_green
                     x = x_green
                     color = "verde" 
+        '''
+        cv2.circle(frame, (x_yellow,y_yellow), 7, (0,255,255), -1)
+        cv2.circle(frame, (x_red,y_red), 7, (0,0,255), -1)
+        cv2.circle(frame, (x_green,y_green), 7, (0,255,0), -1)
+        cv2.circle(frame, (x_blue,y_blue), 7, (255,0,0), -1)
+        '''
         
         #cv2.imshow('prueba', frame) 
         
@@ -437,7 +436,7 @@ while (True):
     #cv2.imshow('rojo', result_red)
     
     '''
-    
+    cv2.imshow('camara', frame)
     
     #cv2.imshow('mask', lower_mask)
     #cv2.imshow('result', result)
