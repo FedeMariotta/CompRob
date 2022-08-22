@@ -27,9 +27,8 @@ for measurment in lidar.iter_measurments():
 '''
 
 
-PORT_NAME = '/dev/ttyUSB0'
-lidar = RPLidar(PORT_NAME)
 
+'''
 #   Calucla la distancia correspondiente a cada grado y promedia mediciones
 #   cantMaxVueltas := cantidad de vueltas que da el sensor tomando medidas paracalcular promedio
 #   Retorna una lista donde la posicion corresponde al grado y el valor a la medida promedio en cm
@@ -38,28 +37,64 @@ def dist(cantMaxVueltas=1):
     cantVueltas=0 # cantidad de vueltas completas que dio el sensor
     distancias = np.zeros((360, 2), int) #Posicion es angulo, (cantMediciones, sumaDistancias)
     resultado= np.zeros(360, int) #Posicion es angulo, valor es distancia en centimetros
-    
-    try:
-        lidar.clear_input()
-        for scan in lidar.iter_scans():#Si no anda, asignar iter_measurments a una variable e iterarla en el for(Como el ej de iter_scans)
-            grado=floor(scan[1])
+    inicio=True
+    lidar.clear_input()
+    medidas=lidar.iter_measurments()
+    for scan in medidas:#Si no anda, asignar iter_measurments a una variable e iterarla en el for(Como el ej de iter_scans)
+        try:
+            grado=floor(scan[2])
+            if(inicio):
+                posPrimerMedida=grado
+                inicio=False
             distancias[grado, 0]=distancias[grado, 0]+1
-            distancias[grado, 1]= distancias[grado, 1]+scan[2]
+            distancias[grado, 1]= distancias[grado, 1]+scan[3]
             
             if(grado==((posPrimerMedida-1)%360)):#Puede dar problema si no hay medidas de un grado y justo es el requerido
                 cantVueltas=cantVueltas+1
                 if(cantVueltas>=(cantMaxVueltas)):
                     break
-    except:
-        lidar.reset()
-        print("Error en LIDAR")
-    print(distancias)
+        except:
+            lidar.reset()
+            print("Error en LIDAR")
+    #print(distancias)
     for i in range(0, 360):
         if (distancias[i,0]!=0):
             resultado[i]=distancias[i, 1]/distancias[i, 0] #Suma total de distancias / cant de medidas que se tomaron por angulo
     return resultado
 
-while(True):
+#print(lidar.iter_scans())
+#print(lidar.iter_measurments())
+'''
+'''
+for measurment in lidar.iter_measurments():
+    print(measurment[2])
+'''
+import multiprocessing
+PORT_NAME = '/dev/ttyUSB1'
+distancias = np.zeros(360, int) #Posicion es angulo, (cantMediciones, sumaDistancias)
+lidar = RPLidar(PORT_NAME)
+
+
+def medir():
+    posPrimerMedida=0 #posicion de la primer medicion
+    inicio=True
+    aux = np.zeros(360, int) 
+    for scan in lidar.iter_measurments():
+        grado=floor(scan[2])
+        if(inicio):
+            posPrimerMedida=grado
+            inicio=False
+        aux[floor(scan[2])]= scan[3]
+        if((posPrimerMedida-1)%360==grado):
+            global distancias
+            distancias=aux
+
+
+
+p = multiprocessing.Process(target=medir)
+p.start()
+
+for i in range(0, 100):
     print("Nuevo llamado: ------------- ")
-    resu=dist(1)
-    print(resu)
+    print(distancias)
+p.kill()

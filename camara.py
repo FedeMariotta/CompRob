@@ -8,7 +8,7 @@ import math
 # e.g 'COM3' windows or '/dev/ttyUSB0' for Linux
 #PORT_NAME = '/dev/ttyUSB0' #lidar
 
-Ax12.DEVICENAME = '/dev/ttyUSB1' #motores
+Ax12.DEVICENAME = '/dev/ttyUSB0' #motores
 
 
 Ax12.BAUDRATE = 1_000_000
@@ -22,7 +22,7 @@ estado = 0
 color_nuevo = 0
 #0 = yendo a buscar cubo, 1 = alineando estanterias y acercandose a los colores del piso, 2 = buscar el color del piso
 
-PORT_NAME = '/dev/ttyUSB0'
+PORT_NAME = '/dev/ttyUSB1'
 lidar = RPLidar(PORT_NAME)
 
 # create AX12 instance with ID 10 
@@ -131,7 +131,7 @@ def buscar_color(h_min, s_min, v_min, h_max, frame, ultimo):
     result = cv2.bitwise_and(frame, frame, mask=mask)   
     kernel = np.ones((2,2),np.uint8)
     result = cv2.morphologyEx(result, cv2.MORPH_OPEN, kernel)
-    cv2.imshow('colores', result)
+    #cv2.imshow('colores', result)
     contours,_ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)   
     if (len(contours) == 0):    
         x = 0
@@ -167,7 +167,7 @@ def go_to_goal(x, y, est):
         estado = est
     else:
         if (not(corrigiendo) and 275 < x and x < 425):
-            adelante(170)
+            adelante(180)
         else:
             corrigiendo = True
             if (x < 350):
@@ -193,7 +193,7 @@ def estanterias_atras():
             else:
                 derecha(123)
            # f(l[0])
-            adelante(170)
+            adelante(180)
             l = laseratras()  
         #print("ya me aleje lo suficiente") 
         #print(l[0])    
@@ -214,9 +214,10 @@ def estanterias_adelante():
         l = laser()
     if (estado != 3):
         while not(l[0] > 2000 and l[0] < 2100):
-            adelante(170)
+            adelante(180)
             l = laseratras()   
             estado = 2
+            global i
             i = (i+1) % 2
     parar()
     
@@ -246,8 +247,8 @@ while (True):
         #cv2.circle(frame, (x_red,y_red), 7, (0,0,255), -1)
         #cv2.circle(frame, (x_green,y_green), 7, (0,255,0), -1)
         #cv2.circle(frame, (x_blue,y_blue), 7, (255,0,0), -1)  
-        cv2.circle(frame, (x_black,y_black), 7, (255,255,255), -1)  
-        cv2.imshow('camara', frame)
+        #cv2.circle(frame, (x_black,y_black), 7, (255,255,255), -1)  
+        #cv2.imshow('camara', frame)
         
         #print("Area amarilla")
         #print(aa)
@@ -311,23 +312,23 @@ while (True):
         if (cv2.waitKey(1) == ord('s')):
             break          
         if (y_red == 0 and y_yellow == 0 and y_green == 0 and y_blue == 0):
-            #adelante(170)
-            print("hola")
+            adelante(180)
         else:
             #este es el color que dice que agarro
             #print(color)
             #go to goal
-            #go_to_goal(x, y, 1)   
-            print(color)   
-            print(y)
+            go_to_goal(x, y, 1)   
+            #print(color)   
+            #print(y)
             #print("Agarre el cubo")
         
     elif (estado == 1):
         #enderezarnos
         estanterias_atras()
-        print("estanterias atras")
+        #print("estanterias atras")
         
     elif (estado == 2): #dejamos el cubo en el color correcto
+        print("estado2")
         cap.release()
         cap = cv2.VideoCapture(-1)
         cap.set(10,15)
@@ -336,13 +337,13 @@ while (True):
         ret, frame = cap.read()
         #cv2.imshow('camara', frame)
         r = devolver_tupla("rojo")
-        x_red, y_red, a = buscar_color(r[0], r[1], r[2], r[3], frame)
+        x_red, y_red, a = buscar_color(r[0], r[1], r[2], r[3], frame, r[4])
         v = devolver_tupla("verde")
-        x_green, y_green, av = buscar_color(v[0], v[1], v[2], v[3] ,frame)
+        x_green, y_green, av = buscar_color(v[0], v[1], v[2], v[3] ,frame, v[4])
         az = devolver_tupla("azul")
-        x_blue, y_blue, a = buscar_color (az[0], az[1], az[2], az[3], frame)
+        x_blue, y_blue, a = buscar_color (az[0], az[1], az[2], az[3], frame, az[4])
         am = devolver_tupla("amarillo")
-        x_yellow, y_yellow, aa = buscar_color(am[0], am[1], am[2], am[3], frame)  
+        x_yellow, y_yellow, aa = buscar_color(am[0], am[1], am[2], am[3], frame, am[4])  
         
         #print("Area amarilla")
         #print(aa)
@@ -400,23 +401,25 @@ while (True):
                     y = y_green
                     x = x_green
                     color_nuevo = "verde" 
-        print("El valor de y es:")
-        print(y)
-        print("El color es:")
-        print(color_nuevo)
+        #print("El valor de y es:")
+        #print(y)
+        #print("El color es:")
+        #print(color_nuevo)
         if (y == 0):
             adelante(100)
         else:
             go_to_goal(x, y, 3)#cmabiamos estado 3
     
-        print("estado2 pasa al 3")
+        #print("estado2 pasa al 3")
         
     elif (estado == 3):
+        print("estado3")
         print("El color que agarre es:")
         print(color)
         print("El color que estoy viendo es:")
         print(color_nuevo)
         if (color == color_nuevo):
+            print("Dejo el cubo")
             #dejo el cubo
             adelante(100)
             time.sleep(2)
@@ -424,12 +427,15 @@ while (True):
             time.sleep(1)
             estado = 4 #ya deje el cubo
         else:
-    
+            estanterias_atras()
+            parar()
+            time.sleep(10)
             if (sentido == "izquierda"):
                 izquierda(123)
             else:
                 derecha(123)
-            time.sleep(6)
+            print("giro")
+            time.sleep(5)
             
             cap.release()
             cap = cv2.VideoCapture(-1)
@@ -438,31 +444,52 @@ while (True):
             image =cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
             
             n = devolver_tupla("negro")
-            x_black, y_black, a = buscar_color(n[0], n[1], n[2], n[3], frame, n[4])       
+            x_black, y_black, a = buscar_color(n[0], n[1], n[2], n[3], frame, n[4]) 
+            
+            print("coordenadas negro")
+            print(x_black, y_black)
             
             #chequear que no se salga
             ahora = time.time()
-            while(x_black != 0 and y_black != 0 and time.time()-ahora < 10):
-                adelante(170)    
+            while(x_black != 0 and y_black != 0 and time.time()-ahora < 6):
+                print("avanzo")
+                adelante(180)    
+                cap.release()
+                cap = cv2.VideoCapture(-1)
+                cap.set(10,15)
+                ret, frame = cap.read()
+                image =cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+                n = devolver_tupla("negro")
+                x_black, y_black, a = buscar_color(n[0], n[1], n[2], n[3], frame, n[4])
+                
+                #cv2.circle(frame, (x_black,y_black), 7, (255,255,255), -1)  
+                #cv2.imshow('camara', frame)       
+                
             
             if (x_black == 0 or y_black == 0): #sali porque no veo negro, tengo que ir para el otro lado
                 if (sentido == "izquierda"):
                     sentido = "derecha"
                 else:
                     sentido = "izquierda"
+           
+                derecha(123)
+                time.sleep(12) #180 grados, doy vuelta el sentido
+                print("gire 180")
             
-            if (sentido = "izquierda"):
+            if (sentido == "izquierda"):
                 derecha(123)
             else:
                 izquierda(123)
-            time.sleep(6)
+            time.sleep(5)
+            print("estoy viendo color")
             estado = 2 #vuelvo a chequear el color
 
     elif (estado == 4):
+        print("estado4")
         estanterias_atras() #lo enderezamos
         parar()
         #deberia dejar el cubo
-        atras(170)
+        atras(180)
         time.sleep(2)
         estanterias_adelante()
         estado = 0        
