@@ -5,7 +5,7 @@ from math import floor
 import time
 
 import multiprocessing
-PORT_NAME = '/dev/ttyUSB0'
+PORT_NAME = '/dev/ttyUSB1'
 distancias = np.zeros((360,2), int) #Posicion es angulo, (cantMediciones, sumaDistancias)
 lidar = RPLidar(PORT_NAME)
 
@@ -39,7 +39,7 @@ for measurment in lidar.iter_measurments():
 #   Calucla la distancia correspondiente a cada grado y promedia mediciones
 #   cantMaxVueltas := cantidad de vueltas que da el sensor tomando medidas paracalcular promedio
 #   Retorna una lista donde la posicion corresponde al grado y el valor a la medida promedio en cm
-def dist(cantMaxVueltas=1):
+def dist(cantMaxVueltas=2):
     posPrimerMedida=0 #posicion de la primer medicion
     cantVueltas=0 # cantidad de vueltas completas que dio el sensor
     distancias = np.zeros((360, 2), int) #Posicion es angulo, (cantMediciones, sumaDistancias)
@@ -76,18 +76,14 @@ def dist(cantMaxVueltas=1):
 
 #print(lidar.iter_scans())
 #print(lidar.iter_measurments())
-
+'''
 def escaneos():
     scans=lidar.iter_measurments()
     for medida in lidar.iter_measurments():
         dist=medida
         print(dist)
         print(" # ")
-        break
-
-
-
-
+        
 def medir():
     posPrimerMedida=0 #posicion de la primer medicion
     inicio=True
@@ -102,10 +98,16 @@ def medir():
         if((posPrimerMedida-1)%360==grado):
             global distancias
             distancias=aux
+'''
+
 cant=0
 while(cant<5):
     resu=dist()
-    print(resu)
+    vMin=0
+    posMin=0
+    for i in range(0, 360):
+        if resu[]
+    #print(resu)
     cant=cant+1
 
 '''

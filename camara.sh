@@ -4,7 +4,7 @@ v4l2-ctl -c contrast=28
 v4l2-ctl -c saturation=80
 v4l2-ctl -c white_balance_temperature_auto=0
 v4l2-ctl -c gamma=90
-v4l2-ctl -c white_balance_temperature=2500
+v4l2-ctl -c white_balance_temperature=2900
 v4l2-ctl -c exposure_auto_priority=0
 v4l2-ctl --list-ctrls-menus
 
