@@ -15,7 +15,7 @@ anterior_y = 0
 cap = cv2.VideoCapture(-1)
 cap.set(10,15)
 
-Ax12.DEVICENAME = '/dev/ttyUSB0' #motores
+Ax12.DEVICENAME = '/dev/ttyUSB1' #motores
 
 
 Ax12.BAUDRATE = 1_000_000
@@ -29,7 +29,7 @@ estado = 0
 color_nuevo = 0
 #0 = yendo a buscar cubo, 1 = alineando estanterias y acercandose a los colores del piso, 2 = buscar el color del piso
 
-PORT_NAME = '/dev/ttyUSB1'
+PORT_NAME = '/dev/ttyUSB0'
 lidar = RPLidar(PORT_NAME)
 
 # create AX12 instance with ID 10 
@@ -136,14 +136,11 @@ def buscar_color(h_min, s_min, v_min, h_max, ultimo):
     global cap
     ret, frame = cap.read()
     image =cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-    cv2.imshow('camara', frame)
     area = 0
     lower = np.array([h_min, s_min, v_min])
     upper = np.array([h_max, 255, ultimo])
     mask = cv2.inRange(image, lower, upper)  
     result = cv2.bitwise_and(frame, frame, mask=mask)   
-    if (h_min == 160):
-        cv2.imshow('rojo', result)
     kernel = np.ones((2,2),np.uint8)
     result = cv2.morphologyEx(result, cv2.MORPH_OPEN, kernel)
     contours,_ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)   
@@ -230,24 +227,19 @@ def estanterias_adelante():
         else:
             derecha(123)
         l = laser()
-    print("Termine")
-    if (estado != 4):
+    
         while not(l[0] > 1600 and l[0] < 1700):
+            if (l[1] > 180):
+                izquierda(123)
+            else:
+                derecha(123)
             adelante(180)
             l = laseratras()   
-            estado = 2
-            global i
-            i = (i+1) % 2
+        estado = 0
+        global i
+        i = (i+1) % 2
     parar()
-    
-    
-def pedir_imagen():
- 
-    ret, frame = cap.read()
-    cv2.imshow('pr', frame)
-    return frame
-
-
+    print("Termine")
 
 while (True):
     if (estado == 0):
@@ -328,23 +320,51 @@ while (True):
         
     elif (estado == 2): #dejamos el cubo en el color correcto
         print("estado2")
-        ar = devolver_tupla("rojo")
-        x_red, y_red, aa = buscar_color(0, 100, 20, 10, 255)  
-        if (anterior_x == 0 and anterior_y == 0):
-            anterior_x = x_red
-            anterior_y = y_red
-        else:
-            #if (abs(x_red-anterior_x) < 50 and abs(y_red-anterior_y) < 50):
-            #    anterior_x = x_red
-            #    anterior_y = y_red
+        if (color == "rojo"):
+            ar = devolver_tupla("rojo")
+            x_red, y_red, aa = buscar_color(0, 100, 20, 10, 255) 
             if (x_red == 0 and y_red == 0):
                     #print("if")
                 estado = 3
             else:
                     #print("else")
                 go_to_goal(x_red, y_red, 4)
-        print("rojo")
-        print(x_red, y_red)        
+            print("rojo")
+            print(x_red, y_red)  
+        elif (color == "verde"):
+            av = devolver_tupla("verde")
+            x_green, y_green, aa = buscar_color(ar[0], ar[1], ar[2], ar[3], ar[4]) 
+            if (x_green == 0 and y_green == 0):
+                    #print("if")
+                estado = 3
+            else:
+                    #print("else")
+                go_to_goal(x_green, y_green, 4)
+            print("verde")
+            print(x_green, y_green)
+        elif (color == "azul"):
+            az = devolver_tupla("azul")
+            x_blue, y_blue, aa = buscar_color(az[0], az[1], az[2], az[3], az[4]) 
+            if (x_blue == 0 and y_blue == 0):
+                    #print("if")
+                estado = 3
+            else:
+                    #print("else")
+                go_to_goal(x_blue, y_blue, 4)
+            print("verde")
+            print(x_blue, y_blue)
+        elif (color == "amarillo"):
+            aa = devolver_tupla("amarillo")
+            x_yellow, y_yellow, aa = buscar_color(aa[0], aa[1], aa[2], aa[3], aa[4]) 
+            if (x_yellow == 0 and y_yellow == 0):
+                    #print("if")
+                estado = 3
+            else:
+                    #print("else")
+                go_to_goal(x_yellow, y_yellow, 4)
+            print("amarillo")
+            print(x_yellow, y_yellow)
+        
                 
         
         

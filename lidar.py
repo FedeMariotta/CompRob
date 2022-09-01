@@ -103,10 +103,14 @@ def medir():
 cant=0
 while(cant<5):
     resu=dist()
-    vMin=0
-    posMin=0
-    for i in range(0, 360):
-        if resu[]
+    vMin=4000
+    posMin=-1
+    for i in range(1, 360):
+        if(resu[i]!=0):
+            if resu[i]<vMin:
+                vMin=resu[i]
+                posMin=i
+    print(vMin, posMin)
     #print(resu)
     cant=cant+1
 
