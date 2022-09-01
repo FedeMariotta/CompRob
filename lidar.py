@@ -46,25 +46,28 @@ def dist(cantMaxVueltas=1):
     resultado= np.zeros(360, int) #Posicion es angulo, valor es distancia en centimetros
     inicio=True
     try:
-        lidar.reset()
+        lidar.connect()
+        lidar.get_health()
         lidar.clear_input()
         medidas=lidar.iter_measurments()
-        for scan in medidas:#Si no anda, asignar iter_measurments a una variable e iterarla en el for(Como el ej de iter_scans)
+        for scan in medidas:
             grado=floor(scan[2])
+            #print(grado)
             if(inicio):
                 posPrimerMedida=grado
                 inicio=False
             distancias[grado, 0]=distancias[grado, 0]+1
             distancias[grado, 1]= distancias[grado, 1]+scan[3]
             
-            if(grado==((posPrimerMedida-1)%360)):#Puede dar problema si no hay medidas de un grado y justo es el requerido
+            if(grado==((posPrimerMedida-3)%360) or grado==((posPrimerMedida-2)%360) or grado==((posPrimerMedida-1)%360)):#Puede dar problema si no hay medidas de un grado y justo es el requerido
                 cantVueltas=cantVueltas+1
                 if(cantVueltas>=(cantMaxVueltas)):
                     break
     except:
         lidar.reset()
+        print("ERROR")
         #return dist()
-    print(distancias)
+    #print(distancias)
     for i in range(0, 360):
         if (distancias[i,0]!=0):
             resultado[i]=distancias[i, 1]/distancias[i, 0] #Suma total de distancias / cant de medidas que se tomaron por angulo
@@ -99,9 +102,11 @@ def medir():
         if((posPrimerMedida-1)%360==grado):
             global distancias
             distancias=aux
-
-resu=dist()
-print(resu)
+cant=0
+while(cant<5):
+    resu=dist()
+    print(resu)
+    cant=cant+1
 
 '''
 p = multiprocessing.Process(target=medir)
