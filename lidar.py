@@ -5,7 +5,7 @@ from math import floor
 import time
 
 import multiprocessing
-PORT_NAME = '/dev/ttyUSB1'
+PORT_NAME = '/dev/ttyUSB0'
 distancias = np.zeros((360,2), int) #Posicion es angulo, (cantMediciones, sumaDistancias)
 lidar = RPLidar(PORT_NAME)
 
