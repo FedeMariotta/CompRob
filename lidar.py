@@ -106,9 +106,12 @@ def medir():
 '''
 
 cant=0
-while(cant<5):
-    resu=dist()
+#while True:
+    #resu=dist()
     #print(resu)
+lidar.connect()
+print(lidar.get_info())
+    
 
 '''
 p = multiprocessing.Process(target=medir)

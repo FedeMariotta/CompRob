@@ -5,12 +5,16 @@ from rplidar import RPLidar
 import time
 import math
 import os
+import queue
+import threading
+
+
+
 
 os.system("sudo bash ./camara.sh")
 anterior_x = 0
 anterior_y = 0
-cap = cv2.VideoCapture(-1)
-cap.set(10,15)
+
 valor_anterior = 180
 valor_ant = 0
 
@@ -39,6 +43,33 @@ i = 0
 
 motor_id_izq = 2
 my_dxl_izq = Ax12(motor_id_izq)  
+
+class VideoCapture:
+
+  def __init__(self, name):
+    self.cap = cv2.VideoCapture(name)
+    self.cap.set(10, 15)
+    self.q = queue.Queue()
+    t = threading.Thread(target=self._reader)
+    t.daemon = True
+    t.start()
+
+  # read frames as soon as they are available, keeping only most recent one
+  def _reader(self):
+    while True:
+      ret, frame = self.cap.read()
+      if not ret:
+        break
+      if not self.q.empty():
+        try:
+          self.q.get_nowait()   # discard previous (unprocessed) frame
+        except Queue.Empty:
+          pass
+      self.q.put(frame)
+
+  def read(self):
+    return self.q.get()
+
 
 def laser():
     i = 0
@@ -141,7 +172,7 @@ def devolver_tupla(color):
     
 def buscar_color(h_min, s_min, v_min, h_max, ultimo):
     global cap
-    ret, frame = cap.read()
+    frame = cap.read()
     image =cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
     cv2.imshow('camara', frame)
     area = 0
@@ -205,11 +236,15 @@ def estanterias_atras():
         else:
             derecha(123)
         l1 = laser()
-        if abs(l[1] - valor_ant) < 40 or abs(l[1] - valor_ant) > 320:
+        print(l1[1])
+        print(abs(l1[1] - valor_ant))
+        if (abs(l1[1] - valor_ant) < 40 or abs(l1[1] - valor_ant) > 320) and l1[1] != 0:
             l = l1
             valor_ant = l1[1]
+        print(l[0], l[1])
     if (estado != 3 and estado != 4):
         while not(l[0] > 1500 and l[0] <1600):
+            print(l[0])
             if (l[1] < 180):
                 izquierda(123)
             else:
@@ -257,6 +292,8 @@ def estanterias_adelante():
     i = (i+1) % 2
     parar()
     print("Termine")
+
+cap = VideoCapture(-1)
 
 while (True):
     if (estado == 0):
@@ -341,7 +378,7 @@ while (True):
             ar = devolver_tupla("rojo")
             x_red, y_red, aa = buscar_color(0, 100, 20, 10, 255) 
             if (x_red == 0 and y_red == 0):
-                estado = 3
+                atras(100)
                 print("Cambie a estado", estado)
             else:
                 go_to_goal(x_red, y_red, 4) 
@@ -349,7 +386,7 @@ while (True):
             av = devolver_tupla("verde")
             x_green, y_green, av = buscar_color(av[0], av[1], av[2], av[3], av[4]) 
             if (x_green == 0 and y_green == 0):
-                estado = 3
+                atras(100)
                 print("Cambie a estado", estado)
             else:
                 go_to_goal(x_green, y_green, 4)
@@ -357,7 +394,7 @@ while (True):
             az = devolver_tupla("azul")
             x_blue, y_blue, aa = buscar_color(az[0], az[1], az[2], az[3], az[4]) 
             if (x_blue == 0 and y_blue == 0):
-                estado = 3
+                atras(100)
                 print("Cambie a estado", estado)
             else:
                 go_to_goal(x_blue, y_blue, 4)
@@ -365,7 +402,7 @@ while (True):
             aa = devolver_tupla("amarillo")
             x_yellow, y_yellow, aa = buscar_color(aa[0], aa[1], aa[2], aa[3], aa[4]) 
             if (x_yellow == 0 and y_yellow == 0):
-                estado = 3
+                atras(100)
                 print("Cambie a estado", estado)
             else:
                 go_to_goal(x_yellow, y_yellow, 4)
