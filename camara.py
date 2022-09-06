@@ -12,6 +12,7 @@ anterior_y = 0
 cap = cv2.VideoCapture(-1)
 cap.set(10,15)
 valor_anterior = 180
+valor_ant = 0
 
 Ax12.DEVICENAME = '/dev/ttyUSB1' #motores
 
@@ -45,6 +46,7 @@ def laser():
     distmin = 200000
     angmin = 0
     try:
+        lidar.connect()
         a = lidar.get_info()
         for measurment in lidar.iter_measurments():
             if (i == 0):
@@ -65,17 +67,21 @@ def laseratras():
     angulo = 0
     distmin = 200000
     angmin = 0
-    a = lidar.get_info()
-    for measurment in lidar.iter_measurments():
-        if (i == 0):
-            angulo = measurment[2]
-            i = 1
-        if (measurment[2] >= angulo-1 and i != 0 and measurment[2] < angulo):
-            break
-        if (measurment[3] < distmin and measurment[3] > 0 and measurment[2] > 165 and measurment[2] < 195):
-            distmin = measurment[3]
-            angmin  = measurment[2] 
-    lidar.stop()
+    try:
+        lidar.connect()
+        a = lidar.get_info()
+        for measurment in lidar.iter_measurments():
+            if (i == 0):
+                angulo = measurment[2]
+                i = 1
+            if (measurment[2] >= angulo-1 and i != 0 and measurment[2] < angulo):
+                break
+            if (measurment[3] < distmin and measurment[3] > 0 and measurment[2] > 165 and measurment[2] < 195):
+                distmin = measurment[3]
+                angmin  = measurment[2] 
+        lidar.stop()
+    except:
+        print("Error lidar")
     return (distmin, angmin)
 
 def laseradelante():
@@ -83,17 +89,21 @@ def laseradelante():
     angulo = 0
     distmin = 200000
     angmin = 0
-    a = lidar.get_info()
-    for measurment in lidar.iter_measurments():
-        if (i == 0):
-            angulo = measurment[2]
-            i = 1
-        if (measurment[2] >= angulo-1 and i != 0 and measurment[2] < angulo):
-            break
-        if (measurment[3] < distmin and measurment[3] > 0 and (measurment[2] > 345 or measurment[2] < 15)):
-            distmin = measurment[3]
-            angmin  = measurment[2] 
-    lidar.stop()
+    try:
+        lidar.connect()
+        a = lidar.get_info()
+        for measurment in lidar.iter_measurments():
+            if (i == 0):
+                angulo = measurment[2]
+                i = 1
+            if (measurment[2] >= angulo-1 and i != 0 and measurment[2] < angulo):
+                break
+            if (measurment[3] < distmin and measurment[3] > 0 and (measurment[2] > 345 or measurment[2] < 15)):
+                distmin = measurment[3]
+                angmin  = measurment[2] 
+        lidar.stop()
+    except:
+        print("Error lidar")
     return (distmin, angmin)
 
     
@@ -133,6 +143,7 @@ def buscar_color(h_min, s_min, v_min, h_max, ultimo):
     global cap
     ret, frame = cap.read()
     image =cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    cv2.imshow('camara', frame)
     area = 0
     lower = np.array([h_min, s_min, v_min])
     upper = np.array([h_max, 255, ultimo])
@@ -187,13 +198,16 @@ def go_to_goal(x, y, est):
 def estanterias_atras():
     global estado
     l = laser()
-    
+    global valor_ant
     while not(l[1] > 165 and l[1] < 195):
         if (l[1] < 180):
             izquierda(123)
         else:
             derecha(123)
-        l = laser()
+        l1 = laser()
+        if abs(l[1] - valor_ant) < 40 or abs(l[1] - valor_ant) > 320:
+            l = l1
+            valor_ant = l1[1]
     if (estado != 3 and estado != 4):
         while not(l[0] > 1500 and l[0] <1600):
             if (l[1] < 180):
@@ -227,12 +241,15 @@ def estanterias_adelante():
             valor_anterior = l1[1]
         print(l[0], l[1])
     
-    while not(l[0] > 1800 and l[0] < 1900):
+    while not(l[0] > 1700 and l[0] < 1800):
         if (l[1] > 180):
             izquierda(123)
         else:
             derecha(123)
-        adelante(180)
+        if (l[0] > 1800):    
+            adelante(180)
+        elif (l[0] < 1500):
+            atras(120)
         l = laseradelante()   
     estado = 0
     print("Cambie a estado", estado)
@@ -311,12 +328,12 @@ while (True):
             #print("hola")
             adelante(100)
         else:
-            #print(color)
+            print(color)
             go_to_goal(x, y, 1)   
         
     elif (estado == 1):
         adelante(170)
-        time.sleep(2.5)
+        time.sleep(3)
         estanterias_atras()
         
     elif (estado == 2): #dejamos el cubo en el color correcto
@@ -330,7 +347,7 @@ while (True):
                 go_to_goal(x_red, y_red, 4) 
         elif (color == "verde"):
             av = devolver_tupla("verde")
-            x_green, y_green, aa = buscar_color(ar[0], ar[1], ar[2], ar[3], ar[4]) 
+            x_green, y_green, av = buscar_color(av[0], av[1], av[2], av[3], av[4]) 
             if (x_green == 0 and y_green == 0):
                 estado = 3
                 print("Cambie a estado", estado)
@@ -374,8 +391,6 @@ while (True):
         ahora = time.time()
         while(x_black != 0 and y_black != 0 and time.time()-ahora < 6):
             print("avanzo")
-            frame = pedir_imagen()
-            image =cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
             n = devolver_tupla("negro")
             x_black, y_black, a = buscar_color(n[0], n[1], n[2], n[3], n[4])
             adelante(170)
@@ -406,10 +421,10 @@ while (True):
         #deberia dejar el cubo
         #deja el cubo
         adelante(123)
-        time.sleep(1)
+        time.sleep(2)
         print("Deje el cubo")
         atras(170)
-        time.sleep(4)
+        time.sleep(5)
         estanterias_adelante()
         estado = 0        
     #se alinea con las estanterias al frente

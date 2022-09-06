@@ -43,7 +43,6 @@ def dist(cantMaxVueltas=2):
     posPrimerMedida=0 #posicion de la primer medicion
     cantVueltas=0 # cantidad de vueltas completas que dio el sensor
     distancias = np.zeros((360, 2), int) #Posicion es angulo, (cantMediciones, sumaDistancias)
-    resultado= np.zeros(360, int) #Posicion es angulo, valor es distancia en centimetros
     inicio=True
     try:
         lidar.connect()
@@ -68,11 +67,17 @@ def dist(cantMaxVueltas=2):
         print("ERROR")
         #return dist()
     #print(distancias)
+    distMin=4000
+    gradoMin=-1
+    print(distancias)
     for i in range(0, 360):
-        if (distancias[i,0]!=0):
-            resultado[i]=distancias[i, 1]/distancias[i, 0] #Suma total de distancias / cant de medidas que se tomaron por angulo
+        if (distancias[i,0]!=0 and distancias[i, 1]!=0):
+            distProm=distancias[i, 1]/distancias[i, 0] #Suma total de distancias / cant de medidas que se tomaron por angulo
+            if distProm<distMin:
+                distMin=distProm
+                gradoMin=i
     lidar.stop()
-    return resultado
+    return (distMin, gradoMin)
 
 #print(lidar.iter_scans())
 #print(lidar.iter_measurments())
@@ -103,16 +108,7 @@ def medir():
 cant=0
 while(cant<5):
     resu=dist()
-    vMin=4000
-    posMin=-1
-    for i in range(1, 360):
-        if(resu[i]!=0):
-            if resu[i]<vMin:
-                vMin=resu[i]
-                posMin=i
-    print(vMin, posMin)
     #print(resu)
-    cant=cant+1
 
 '''
 p = multiprocessing.Process(target=medir)
